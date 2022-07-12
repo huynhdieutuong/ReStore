@@ -26,3 +26,9 @@ dotnet ef migrations add InitialCreate -o Data/Migrations
 dotnet ef database update
 Ctrl + P, > SQLite: Open database
 ```
+
+4. Auto create table from Migrations & Seed database
+```
+dotnet ef database drop
+dotnet watch run
+```
