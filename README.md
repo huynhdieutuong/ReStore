@@ -32,3 +32,9 @@ Ctrl + P, > SQLite: Open database
 dotnet ef database drop
 dotnet watch run
 ```
+
+## Init React
+```
+npx create-react-app client --template typescript --use-npm
+```
+File structure: Grouping by features https://reactjs.org/docs/faq-structure.html
