@@ -1,9 +1,17 @@
+import {CssBaseline} from '@mui/material'
+import {Container} from '@mui/system'
+import Catalog from '../../features/catalog/Catalog'
+
 function App() {
   return (
-    <div>
+    <>
+      <CssBaseline />
       <h1>Re-Store</h1>
-    </div>
-  );
+      <Container>
+        <Catalog />
+      </Container>
+    </>
+  )
 }
 
-export default App;
+export default App
