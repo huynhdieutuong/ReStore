@@ -6,13 +6,13 @@ using API.Entities;
 
 namespace API.Data
 {
-    public static class DbInitializer
+  public static class DbInitializer
+  {
+    public static void Initialize(StoreContext context)
     {
-        public static void Initialize(StoreContext context) 
-        {
-            if (context.Products.Any()) return;
+      if (context.Products.Any()) return;
 
-            List<Product> products = new List<Product> 
+      List<Product> products = new List<Product>
             {
                 new Product
                 {
@@ -211,12 +211,12 @@ namespace API.Data
                     QuantityInStock = 100
                 },
             };
-        
-            foreach (var product in products)
-            {
-                context.Products.Add(product);
-            }
-            context.SaveChanges();
-        }
+
+      foreach (var product in products)
+      {
+        context.Products.Add(product);
+      }
+      context.SaveChanges();
     }
+  }
 }
