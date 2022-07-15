@@ -1,8 +1,10 @@
 import {useEffect, useState} from 'react'
+import {Outlet, useParams} from 'react-router-dom'
 import {Product} from '../../app/models/product'
 import ProductList from './ProductList'
 
 const Catalog = () => {
+  const {productId} = useParams<{productId: string}>()
   const [products, setProducts] = useState<Product[]>([])
 
   useEffect(() => {
@@ -11,11 +13,7 @@ const Catalog = () => {
       .then((data) => setProducts(data))
   }, [])
 
-  return (
-    <>
-      <ProductList products={products} />
-    </>
-  )
+  return <>{productId ? <Outlet /> : <ProductList products={products} />}</>
 }
 
 export default Catalog
