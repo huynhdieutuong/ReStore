@@ -1,32 +1,42 @@
+import {createBrowserHistory} from 'history'
 import React from 'react'
 import ReactDOM from 'react-dom/client'
-import './app/layout/styles.css'
+import {
+  Route,
+  Routes,
+  unstable_HistoryRouter as HistoryRouter,
+} from 'react-router-dom'
+import NotFound from './app/errors/NotFound'
+import ServerError from './app/errors/ServerError'
 import App from './app/layout/App'
-import reportWebVitals from './reportWebVitals'
-import {BrowserRouter, Route, Routes} from 'react-router-dom'
-import HomePage from './features/home/HomePage'
-import Catalog from './features/catalog/Catalog'
+import './app/layout/styles.css'
 import AboutPage from './features/about/AboutPage'
-import ContactPage from './features/contact/ContactPage'
-import NotFoundPage from './features/notfound/NotFoundPage'
+import Catalog from './features/catalog/Catalog'
 import ProductDetails from './features/catalog/ProductDetails'
+import ContactPage from './features/contact/ContactPage'
+import HomePage from './features/home/HomePage'
+import reportWebVitals from './reportWebVitals'
+
+export const history = createBrowserHistory({window})
 
 const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement)
 root.render(
   <React.StrictMode>
-    <BrowserRouter>
+    <HistoryRouter history={history}>
       <Routes>
         <Route path='/' element={<App />}>
           <Route index element={<HomePage />} />
-          <Route path='catalog' element={<Catalog />}>
+          <Route path='catalog'>
+            <Route index element={<Catalog />} />
             <Route path=':productId' element={<ProductDetails />} />
           </Route>
           <Route path='about' element={<AboutPage />} />
           <Route path='contact' element={<ContactPage />} />
-          <Route path='*' element={<NotFoundPage />} />
+          <Route path='server-error' element={<ServerError />} />
+          <Route path='*' element={<NotFound />} />
         </Route>
       </Routes>
-    </BrowserRouter>
+    </HistoryRouter>
   </React.StrictMode>
 )
 

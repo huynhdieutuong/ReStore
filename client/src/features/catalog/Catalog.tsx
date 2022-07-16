@@ -1,19 +1,25 @@
 import {useEffect, useState} from 'react'
-import {Outlet, useParams} from 'react-router-dom'
+import catalogApi from '../../app/api/catalog'
+import LoadingComponent from '../../app/layout/LoadingComponent'
 import {Product} from '../../app/models/product'
 import ProductList from './ProductList'
 
 const Catalog = () => {
-  const {productId} = useParams<{productId: string}>()
   const [products, setProducts] = useState<Product[]>([])
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    fetch('http://localhost:5000/api/products')
-      .then((res) => res.json())
-      .then((data) => setProducts(data))
+    const fetchData = async () => {
+      const res = await catalogApi.getProducts()
+      setProducts(res.data)
+      setLoading(false)
+    }
+    fetchData()
   }, [])
 
-  return <>{productId ? <Outlet /> : <ProductList products={products} />}</>
+  if (loading) return <LoadingComponent message='Loading products...' />
+
+  return <ProductList products={products} />
 }
 
 export default Catalog
