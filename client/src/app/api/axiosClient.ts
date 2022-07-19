@@ -14,6 +14,7 @@ const sleep = () => new Promise((resolve) => setTimeout(resolve, 500))
 
 const axiosClient = axios.create({
   baseURL: process.env.REACT_APP_BASE_URL,
+  withCredentials: true,
 })
 
 axiosClient.interceptors.request.use(
