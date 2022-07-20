@@ -1,16 +1,13 @@
 import {createBrowserHistory} from 'history'
 import React from 'react'
 import ReactDOM from 'react-dom/client'
-import {
-  Route,
-  Routes,
-  unstable_HistoryRouter as HistoryRouter,
-} from 'react-router-dom'
-import {StoreProvider} from './app/context/StoreContext'
+import {Provider} from 'react-redux'
+import {Route, Routes, unstable_HistoryRouter as HistoryRouter} from 'react-router-dom'
 import NotFound from './app/errors/NotFound'
 import ServerError from './app/errors/ServerError'
 import App from './app/layout/App'
 import './app/layout/styles.css'
+import {store} from './app/store/configureStore'
 import AboutPage from './features/about/AboutPage'
 import BasketPage from './features/basket/BasketPage'
 import Catalog from './features/catalog/Catalog'
@@ -26,7 +23,7 @@ const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement)
 root.render(
   <React.StrictMode>
     <HistoryRouter history={history}>
-      <StoreProvider>
+      <Provider store={store}>
         <Routes>
           <Route path='/' element={<App />}>
             <Route index element={<HomePage />} />
@@ -42,7 +39,7 @@ root.render(
             <Route path='*' element={<NotFound />} />
           </Route>
         </Routes>
-      </StoreProvider>
+      </Provider>
     </HistoryRouter>
   </React.StrictMode>
 )

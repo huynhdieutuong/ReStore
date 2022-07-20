@@ -13,23 +13,22 @@ import {
 import {useEffect, useState} from 'react'
 import {useNavigate, useParams} from 'react-router-dom'
 import {toast} from 'react-toastify'
-import basketApi from '../../app/api/basket'
 import catalogApi from '../../app/api/catalog'
-import {useStoreContext} from '../../app/context/StoreContext'
 import LoadingComponent from '../../app/layout/LoadingComponent'
+import {BasketItem} from '../../app/models/basket'
 import {Product} from '../../app/models/product'
+import {useAppDispatch, useAppSelector} from '../../app/store/hooks'
+import {addBasketItemAsync, removeBasketItemAsync} from '../basket/basketSlice'
 
 const ProductDetails = () => {
   const {productId} = useParams<{productId: string}>()
   const navigate = useNavigate()
   const [loading, setLoading] = useState(true)
   const [product, setProduct] = useState<Product | null>(null)
-  const {basket, setBasket, removeItem} = useStoreContext()
+  const {basket, status} = useAppSelector((state) => state.basket)
+  const dispatch = useAppDispatch()
   const [quantity, setQuantity] = useState(1)
-  const [submitting, setSubmitting] = useState(false)
-  const item = basket?.items.find(
-    (item) => item.productId.toString() === productId
-  )
+  const item = basket?.items.find((item: BasketItem) => item.productId.toString() === productId)
 
   useEffect(() => {
     const fetchData = async () => {
@@ -53,18 +52,26 @@ const ProductDetails = () => {
     if (value > 0) setQuantity(parseInt(value))
   }
 
-  const handleUpdateCart = async () => {
-    setSubmitting(true)
+  const handleUpdateCart = () => {
     if (!item || item.quantity < quantity) {
       const updateQuantity = item ? quantity - item.quantity : quantity
-      const res = await basketApi.addItem(product?.id!, updateQuantity)
-      setBasket(res.data)
+      dispatch(
+        addBasketItemAsync({
+          name: `update-cart`,
+          productId: product?.id!,
+          quantity: updateQuantity,
+        })
+      )
     } else {
       const updateQuantity = item.quantity - quantity
-      await basketApi.removeItem(product?.id!, updateQuantity)
-      removeItem(product?.id!, updateQuantity)
+      dispatch(
+        removeBasketItemAsync({
+          name: `update-cart`,
+          productId: product?.id!,
+          quantity: updateQuantity,
+        })
+      )
     }
-    setSubmitting(false)
   }
 
   if (loading) return <LoadingComponent message='Loading product...' />
@@ -72,11 +79,7 @@ const ProductDetails = () => {
   return (
     <Grid container spacing={6}>
       <Grid item xs={6}>
-        <img
-          src={product?.pictureUrl}
-          alt={product?.name}
-          style={{width: '100%'}}
-        />
+        <img src={product?.pictureUrl} alt={product?.name} style={{width: '100%'}} />
       </Grid>
       <Grid item xs={6}>
         <Typography variant='h3'>{product?.name}</Typography>
@@ -130,7 +133,7 @@ const ProductDetails = () => {
               variant='contained'
               fullWidth
               disabled={item?.quantity === quantity}
-              loading={submitting}
+              loading={status === 'update-cart'}
               onClick={handleUpdateCart}
             >
               {item ? 'Update Quantity' : 'Add to Cart'}

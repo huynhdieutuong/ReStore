@@ -11,7 +11,7 @@ import {
   Typography,
 } from '@mui/material'
 import {NavLink, useNavigate} from 'react-router-dom'
-import {useStoreContext} from '../context/StoreContext'
+import {useAppSelector} from '../store/hooks'
 
 interface Props {
   darkMode: boolean
@@ -58,7 +58,7 @@ const renderLinks = (links: Link[]) => (
 
 const Header = ({darkMode, handleThemeChange}: Props) => {
   const navigate = useNavigate()
-  const {basket} = useStoreContext()
+  const {basket} = useAppSelector((state) => state.basket)
   const itemCount = basket?.items.reduce((sum, item) => sum + item.quantity, 0)
 
   return (
@@ -78,11 +78,7 @@ const Header = ({darkMode, handleThemeChange}: Props) => {
         </Box>
         <Box>{renderLinks(midLinks)}</Box>
         <Box sx={{display: 'flex'}}>
-          <IconButton
-            size='large'
-            sx={{color: 'inherit'}}
-            onClick={() => navigate('basket')}
-          >
+          <IconButton size='large' sx={{color: 'inherit'}} onClick={() => navigate('basket')}>
             <Badge badgeContent={itemCount} color='secondary'>
               <ShoppingCart />
             </Badge>
