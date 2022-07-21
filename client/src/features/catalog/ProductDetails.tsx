@@ -11,41 +11,26 @@ import {
   Typography,
 } from '@mui/material'
 import {useEffect, useState} from 'react'
-import {useNavigate, useParams} from 'react-router-dom'
-import {toast} from 'react-toastify'
-import catalogApi from '../../app/api/catalog'
+import {useParams} from 'react-router-dom'
 import LoadingComponent from '../../app/layout/LoadingComponent'
 import {BasketItem} from '../../app/models/basket'
-import {Product} from '../../app/models/product'
 import {useAppDispatch, useAppSelector} from '../../app/store/hooks'
 import {addBasketItemAsync, removeBasketItemAsync} from '../basket/basketSlice'
+import {fetchProductByIdAsync, productSelectors} from './catalogSlice'
 
 const ProductDetails = () => {
   const {productId} = useParams<{productId: string}>()
-  const navigate = useNavigate()
-  const [loading, setLoading] = useState(true)
-  const [product, setProduct] = useState<Product | null>(null)
-  const {basket, status} = useAppSelector((state) => state.basket)
   const dispatch = useAppDispatch()
+  const {basket, status} = useAppSelector((state) => state.basket)
+  const product = useAppSelector((state) => productSelectors.selectById(state, productId!))
+  const {productStatus} = useAppSelector((state) => state.catalog)
   const [quantity, setQuantity] = useState(1)
   const item = basket?.items.find((item: BasketItem) => item.productId.toString() === productId)
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const res = await catalogApi.getProductById(productId as string)
-        setProduct(res.data)
-        setLoading(false)
-      } catch (error) {
-        const errors = error as Array<string>
-        toast.error(errors[0])
-        navigate('..')
-      }
-    }
-
-    fetchData()
+    if (!product) dispatch(fetchProductByIdAsync(productId!))
     if (item) setQuantity(item.quantity)
-  }, [productId, navigate, item])
+  }, [dispatch, item, product, productId])
 
   const handleInputChange = (e: any) => {
     const value = e.target.value
@@ -74,7 +59,7 @@ const ProductDetails = () => {
     }
   }
 
-  if (loading) return <LoadingComponent message='Loading product...' />
+  if (productStatus === 'pending') return <LoadingComponent message='Loading product...' />
 
   return (
     <Grid container spacing={6}>

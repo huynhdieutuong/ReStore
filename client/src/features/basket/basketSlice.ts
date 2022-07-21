@@ -1,10 +1,11 @@
 import {createAsyncThunk, createSlice} from '@reduxjs/toolkit'
 import basketApi from '../../app/api/basket'
 import {Basket} from '../../app/models/basket'
+import {Status} from '../../app/store/types'
 
 interface BasketState {
   basket: Basket | null
-  loading: 'idle' | 'pending' | 'succeeded' | 'failed'
+  loading: Status
   status: string
 }
 
