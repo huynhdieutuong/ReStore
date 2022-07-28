@@ -1,6 +1,7 @@
 import axios, {AxiosError} from 'axios'
 import {history} from '../../index'
 import {toast} from 'react-toastify'
+import {PaginatedResponse} from '../models/pagination'
 
 interface DataError {
   type: string
@@ -29,6 +30,10 @@ axiosClient.interceptors.request.use(
 axiosClient.interceptors.response.use(
   async (response) => {
     await sleep()
+
+    const pagination = response.headers['pagination']
+    if (pagination) response.data = new PaginatedResponse(response.data, JSON.parse(pagination))
+
     return response
   },
   (error: AxiosError) => {
@@ -39,8 +44,7 @@ axiosClient.interceptors.response.use(
         if (dataError.errors) {
           const modelStateErrors: string[] = []
           for (const key in dataError.errors) {
-            if (dataError.errors[key])
-              modelStateErrors.push(dataError.errors[key])
+            if (dataError.errors[key]) modelStateErrors.push(dataError.errors[key])
           }
           throw modelStateErrors.flat()
         }
