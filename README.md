@@ -38,3 +38,20 @@ dotnet watch run
 npx create-react-app client --template typescript --use-npm
 ```
 File structure: Grouping by features https://reactjs.org/docs/faq-structure.html
+
+## Integrate Identity Framework
+1. Install packages
+```
+cd API
+dotnet add package Microsoft.AspNetCore.Authentication.JwtBearer
+dotnet add package Microsoft.AspNetCore.Identity.EntityFrameworkCore
+```
+2. Init data and register services in Startup.cs
+- Create roles
+- Create users
+
+3. Migrations and auto create Identity tables with Init data
+```
+dotnet ef migrations add IdentityAdded
+dotnet watch run
+```
