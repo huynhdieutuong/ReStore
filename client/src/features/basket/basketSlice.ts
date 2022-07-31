@@ -2,6 +2,7 @@ import {createAsyncThunk, createSlice} from '@reduxjs/toolkit'
 import basketApi from '../../app/api/basket'
 import {Basket} from '../../app/models/basket'
 import {Status} from '../../app/store/types'
+import {getCookie} from '../../app/utils/util'
 
 interface BasketState {
   basket: Basket | null
@@ -30,6 +31,11 @@ export const getBasketAsync = createAsyncThunk<Basket>(
     } catch (error) {
       return thunkAPI.rejectWithValue(error)
     }
+  },
+  {
+    condition: () => {
+      if (!getCookie('buyerId')) return false
+    },
   }
 )
 

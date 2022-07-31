@@ -9,6 +9,9 @@ import App from './app/layout/App'
 import './app/layout/styles.css'
 import {store} from './app/store/configureStore'
 import AboutPage from './features/about/AboutPage'
+import Login from './features/account/Login'
+import Logout from './features/account/Logout'
+import Register from './features/account/Register'
 import BasketPage from './features/basket/BasketPage'
 import Catalog from './features/catalog/Catalog'
 import ProductDetails from './features/catalog/ProductDetails'
@@ -36,6 +39,9 @@ root.render(
             <Route path='server-error' element={<ServerError />} />
             <Route path='basket' element={<BasketPage />} />
             <Route path='checkout' element={<CheckoutPage />} />
+            <Route path='login' element={<Login />} />
+            <Route path='register' element={<Register />} />
+            <Route path='logout' element={<Logout />} />
             <Route path='*' element={<NotFound />} />
           </Route>
         </Routes>

@@ -1,6 +1,6 @@
 import axios, {AxiosError} from 'axios'
-import {history} from '../../index'
 import {toast} from 'react-toastify'
+import {history} from '../../index'
 import {PaginatedResponse} from '../models/pagination'
 
 interface DataError {
@@ -20,6 +20,9 @@ const axiosClient = axios.create({
 
 axiosClient.interceptors.request.use(
   (config) => {
+    let token = null
+    if (localStorage.getItem('user')) token = JSON.parse(localStorage.getItem('user')!).token
+    if (token) config.headers = {Authorization: `Bearer ${token}`}
     return config
   },
   (error) => {

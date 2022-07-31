@@ -4,9 +4,9 @@ import {useEffect, useState} from 'react'
 import {Outlet} from 'react-router-dom'
 import {ToastContainer} from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
+import {fetchUserAsync} from '../../features/account/accountSlice'
 import {getBasketAsync} from '../../features/basket/basketSlice'
 import {useAppDispatch, useAppSelector} from '../store/hooks'
-import {getCookie} from '../utils/util'
 import Header from './Header'
 import LoadingComponent from './LoadingComponent'
 
@@ -15,6 +15,7 @@ function App() {
   const handleThemeChange = () => setDarkMode(!darkMode)
   const dispatch = useAppDispatch()
   const {loading} = useAppSelector((state) => state.basket)
+  const {fetchUserStatus} = useAppSelector((state) => state.account)
 
   const theme = createTheme({
     palette: {
@@ -26,11 +27,12 @@ function App() {
   })
 
   useEffect(() => {
-    const buyerId = getCookie('buyerId')
-    if (buyerId) dispatch(getBasketAsync())
+    dispatch(getBasketAsync())
+    dispatch(fetchUserAsync())
   }, [dispatch])
 
-  if (loading === 'pending') return <LoadingComponent message='Initializing app...' />
+  if (loading === 'pending' || fetchUserStatus === 'pending')
+    return <LoadingComponent message='Initializing app...' />
 
   return (
     <ThemeProvider theme={theme}>

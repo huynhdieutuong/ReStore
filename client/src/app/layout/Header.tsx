@@ -40,6 +40,12 @@ const rightLinks: Link[] = [
   {title: 'register', path: 'register'},
 ]
 
+const loggedInLinks: Link[] = [
+  {title: 'Profile', path: 'profile'},
+  {title: 'My orders', path: 'my-orders'},
+  {title: 'Logout', path: 'logout'},
+]
+
 const navStyles = {
   color: 'inherit',
   textDecoration: 'none',
@@ -53,6 +59,7 @@ const navStyles = {
 }
 
 const Header = ({darkMode, handleThemeChange}: Props) => {
+  const {user} = useAppSelector((state) => state.account)
   const navigate = useNavigate()
   const {basket} = useAppSelector((state) => state.basket)
   const itemCount = basket?.items.reduce((sum, item) => sum + item.quantity, 0)
@@ -183,7 +190,7 @@ const Header = ({darkMode, handleThemeChange}: Props) => {
         open={Boolean(anchorElUser)}
         onClose={handleCloseUserMenu}
       >
-        {renderMenuItem(rightLinks, handleCloseUserMenu)}
+        {renderMenuItem(loggedInLinks, handleCloseUserMenu)}
       </Menu>
     </>
   )
@@ -209,12 +216,11 @@ const Header = ({darkMode, handleThemeChange}: Props) => {
         {/* Right menu */}
         <Box sx={{display: {xs: 'none', sm: 'flex'}}}>
           {renderCart()}
-          {renderLinks(rightLinks)}
+          {user ? renderLoggedInMenu() : renderLinks(rightLinks)}
         </Box>
         <Box sx={{display: {xs: 'flex', sm: 'none'}}}>
           {renderCart()}
-          {renderRightMenu()}
-          {/* {renderLoggedInMenu()} */}
+          {user ? renderLoggedInMenu() : renderRightMenu()}
         </Box>
       </Toolbar>
     </AppBar>
