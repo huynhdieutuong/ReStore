@@ -6,6 +6,7 @@ import {Route, Routes, unstable_HistoryRouter as HistoryRouter} from 'react-rout
 import NotFound from './app/errors/NotFound'
 import ServerError from './app/errors/ServerError'
 import App from './app/layout/App'
+import PrivateRoute from './app/layout/PrivateRoute'
 import './app/layout/styles.css'
 import {store} from './app/store/configureStore'
 import AboutPage from './features/about/AboutPage'
@@ -38,10 +39,12 @@ root.render(
             <Route path='contact' element={<ContactPage />} />
             <Route path='server-error' element={<ServerError />} />
             <Route path='basket' element={<BasketPage />} />
-            <Route path='checkout' element={<CheckoutPage />} />
             <Route path='login' element={<Login />} />
             <Route path='register' element={<Register />} />
             <Route path='logout' element={<Logout />} />
+            <Route element={<PrivateRoute />}>
+              <Route path='checkout' element={<CheckoutPage />} />
+            </Route>
             <Route path='*' element={<NotFound />} />
           </Route>
         </Routes>

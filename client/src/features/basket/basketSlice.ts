@@ -65,7 +65,14 @@ export const removeBasketItemAsync = createAsyncThunk<void, UpdateItemType>(
 export const basketSlice = createSlice({
   name: 'basket',
   initialState,
-  reducers: {},
+  reducers: {
+    setBasket: (state, action) => {
+      state.basket = action.payload
+    },
+    clearBasket: (state) => {
+      state.basket = null
+    },
+  },
   extraReducers: (builder) => {
     // getBasketAsync
     builder.addCase(getBasketAsync.pending, (state) => {
@@ -112,5 +119,7 @@ export const basketSlice = createSlice({
     })
   },
 })
+
+export const {setBasket, clearBasket} = basketSlice.actions
 
 export default basketSlice.reducer

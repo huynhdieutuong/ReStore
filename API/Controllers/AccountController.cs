@@ -5,10 +5,12 @@ using System.Threading.Tasks;
 using API.Data;
 using API.DTOs;
 using API.Entities;
+using API.Extensions;
 using API.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace API.Controllers
 {
@@ -31,10 +33,25 @@ namespace API.Controllers
 
       if (user == null || !await _userManager.CheckPasswordAsync(user, loginDto.Password)) return Unauthorized();
 
+      // - No basket, then login (user had basket or not) => Load user basket
+      // - Had basket (new basket), then login (user had basket or not) => Replace user basket with new basket
+      var noneBasket = await RetrieveBasket(Request.Cookies["buyerId"]);
+      if (noneBasket != null)
+      {
+        var userBasket = await RetrieveBasket(user.Id);
+        if (userBasket != null) _context.Baskets.Remove(userBasket);
+
+        noneBasket.BuyerId = user.Id;
+        Response.Cookies.Delete("buyerId");
+
+        await _context.SaveChangesAsync();
+      }
+
       return new UserDto
       {
         Email = user.Email,
-        Token = await _tokenService.GenerateToken(user)
+        Token = await _tokenService.GenerateToken(user),
+        Basket = (await RetrieveBasket(user.Id)).MapBasketToDto()
       };
     }
 
@@ -65,11 +82,24 @@ namespace API.Controllers
     {
       var user = await _userManager.FindByNameAsync(User.Identity.Name);
 
+      var userBasket = await RetrieveBasket(user.Id);
+
       return new UserDto
       {
         Email = user.Email,
-        Token = await _tokenService.GenerateToken(user)
+        Token = await _tokenService.GenerateToken(user),
+        Basket = userBasket.MapBasketToDto()
       };
+    }
+
+    private async Task<Basket> RetrieveBasket(string buyerId)
+    {
+      if (string.IsNullOrEmpty(buyerId)) return null;
+
+      return await _context.Baskets
+              .Include(i => i.Items)
+              .ThenInclude(p => p.Product)
+              .FirstOrDefaultAsync(x => x.BuyerId == buyerId);
     }
   }
 }

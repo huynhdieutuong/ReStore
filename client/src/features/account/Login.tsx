@@ -5,7 +5,7 @@ import Avatar from '@mui/material/Avatar'
 import Box from '@mui/material/Box'
 import Grid from '@mui/material/Grid'
 import Link from '@mui/material/Link'
-import {Link as RouterLink, Navigate} from 'react-router-dom'
+import {Link as RouterLink, Navigate, useLocation} from 'react-router-dom'
 import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography'
 import {Container} from '@mui/system'
@@ -18,6 +18,9 @@ import {loginAsync} from './accountSlice'
 const Login = () => {
   const {status, user} = useAppSelector((state) => state.account)
   const dispatch = useAppDispatch()
+  const location = useLocation()
+  const state = location.state as any
+
   const {
     register,
     handleSubmit,
@@ -28,7 +31,7 @@ const Login = () => {
     dispatch(loginAsync(data))
   }
 
-  if (user) return <Navigate to='../catalog' />
+  if (user) return <Navigate to={state?.from || '../catalog'} />
 
   return (
     <Container

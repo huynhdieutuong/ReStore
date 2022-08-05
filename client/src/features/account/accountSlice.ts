@@ -4,6 +4,7 @@ import {history} from '../..'
 import accountApi from '../../app/api/account'
 import {LoginInput, RegisterInput, User} from '../../app/models/account'
 import {Status} from '../../app/store/types'
+import {setBasket} from '../basket/basketSlice'
 
 interface AccountState {
   status: Status
@@ -25,7 +26,9 @@ export const loginAsync = createAsyncThunk<User, LoginInput>(
     try {
       const res = await accountApi.login(values)
       localStorage.setItem('user', JSON.stringify(res.data))
-      return res.data
+      const {basket, ...user} = res.data
+      thunkAPI.dispatch(setBasket(basket))
+      return user
     } catch (error) {
       localStorage.removeItem('user')
       return thunkAPI.rejectWithValue(error)
@@ -50,7 +53,9 @@ export const fetchUserAsync = createAsyncThunk<User>(
   async (_, thunkAPI) => {
     try {
       const res = await accountApi.currentUser()
-      return res.data
+      const {basket, ...user} = res.data
+      thunkAPI.dispatch(setBasket(basket))
+      return user
     } catch (error) {
       return thunkAPI.rejectWithValue(error)
     }
