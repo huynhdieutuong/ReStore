@@ -24,6 +24,12 @@ namespace API.Data
     {
       base.OnModelCreating(builder);
 
+      builder.Entity<User>()
+          .HasOne(a => a.Address)
+          .WithOne()
+          .HasForeignKey<UserAddress>(a => a.Id)
+          .OnDelete(DeleteBehavior.Cascade);
+
       builder.Entity<IdentityRole>()
       .HasData(
         new IdentityRole { Name = "Member", NormalizedName = "MEMBER" },
