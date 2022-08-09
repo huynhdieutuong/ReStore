@@ -92,14 +92,21 @@ namespace API.Controllers
       };
     }
 
+    [Authorize]
+    [HttpGet("saveAddress")]
+    public async Task<ActionResult<UserAddress>> GetSaveAddress()
+    {
+      return await _userManager.Users.
+                      Where(u => u.UserName == User.Identity.Name)
+                      .Select(u => u.Address)
+                      .FirstOrDefaultAsync();
+    }
+
     private async Task<Basket> RetrieveBasket(string buyerId)
     {
       if (string.IsNullOrEmpty(buyerId)) return null;
 
-      return await _context.Baskets
-              .Include(i => i.Items)
-              .ThenInclude(p => p.Product)
-              .FirstOrDefaultAsync(x => x.BuyerId == buyerId);
+      return await _context.Baskets.RetrieveBasketWithItems(buyerId).FirstOrDefaultAsync();
     }
   }
 }

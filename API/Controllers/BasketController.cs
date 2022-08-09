@@ -73,10 +73,7 @@ namespace API.Controllers
         userId = user.Id;
       }
 
-      return await _context.Baskets
-          .Include(i => i.Items)
-          .ThenInclude(p => p.Product)
-          .FirstOrDefaultAsync(x => x.BuyerId == userId);
+      return await _context.Baskets.RetrieveBasketWithItems(userId).FirstOrDefaultAsync();
     }
 
     private async Task<Basket> CreateBasket()
