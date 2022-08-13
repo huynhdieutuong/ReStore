@@ -3,6 +3,8 @@ import counterReducer from '../../features/about/counterSlice'
 import basketReducer from '../../features/basket/basketSlice'
 import catalogReducer from '../../features/catalog/catalogSlice'
 import accountReducer from '../../features/account/accountSlice'
+import checkoutReducer from '../../features/checkout/checkoutSlice'
+import orderReducer from '../../features/order/orderSlice'
 
 export const store = configureStore({
   reducer: {
@@ -10,6 +12,8 @@ export const store = configureStore({
     basket: basketReducer,
     catalog: catalogReducer,
     account: accountReducer,
+    checkout: checkoutReducer,
+    order: orderReducer,
   },
 })
 

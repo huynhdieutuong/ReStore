@@ -49,7 +49,9 @@ namespace API.Controllers
     [HttpPost]
     public async Task<ActionResult<int>> CreateOrder(CreateOrderDto createOrderDto)
     {
-      var user = await _userManager.FindByNameAsync(User.Identity.Name);
+      var user = await _userManager.Users
+              .Include(u => u.Address)
+              .FirstOrDefaultAsync(u => u.UserName == User.Identity.Name);
 
       var userBasket = await _context.Baskets.RetrieveBasketWithItems(user.Id).FirstOrDefaultAsync();
 

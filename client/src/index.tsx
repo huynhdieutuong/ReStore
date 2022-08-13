@@ -19,6 +19,8 @@ import ProductDetails from './features/catalog/ProductDetails'
 import CheckoutPage from './features/checkout/CheckoutPage'
 import ContactPage from './features/contact/ContactPage'
 import HomePage from './features/home/HomePage'
+import OrderDetails from './features/order/OrderDetails'
+import OrdersPage from './features/order/OrdersPage'
 import reportWebVitals from './reportWebVitals'
 
 export const history = createBrowserHistory({window})
@@ -44,6 +46,10 @@ root.render(
             <Route path='logout' element={<Logout />} />
             <Route element={<PrivateRoute />}>
               <Route path='checkout' element={<CheckoutPage />} />
+              <Route path='my-orders'>
+                <Route index element={<OrdersPage />} />
+                <Route path=':orderId' element={<OrderDetails />} />
+              </Route>
             </Route>
             <Route path='*' element={<NotFound />} />
           </Route>

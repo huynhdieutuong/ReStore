@@ -3,6 +3,7 @@ import {toast} from 'react-toastify'
 import {history} from '../..'
 import accountApi from '../../app/api/account'
 import {LoginInput, RegisterInput, User} from '../../app/models/account'
+import {ShippingAddress} from '../../app/models/order'
 import {Status} from '../../app/store/types'
 import {setBasket} from '../basket/basketSlice'
 
@@ -11,6 +12,7 @@ interface AccountState {
   user: User | null
   fetchUserStatus: Status
   registerErrors: string[]
+  userAddress: ShippingAddress | null
 }
 
 const initialState: AccountState = {
@@ -18,6 +20,7 @@ const initialState: AccountState = {
   user: null,
   fetchUserStatus: 'idle',
   registerErrors: [],
+  userAddress: null,
 }
 
 export const loginAsync = createAsyncThunk<User, LoginInput>(
@@ -67,6 +70,18 @@ export const fetchUserAsync = createAsyncThunk<User>(
   }
 )
 
+export const getUserAddressAsync = createAsyncThunk<ShippingAddress>(
+  'account/getUserAddressAsync',
+  async (_, thunkAPI) => {
+    try {
+      const res = await accountApi.getAddress()
+      return res.data
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error)
+    }
+  }
+)
+
 export const accountSlice = createSlice({
   name: 'account',
   initialState,
@@ -89,6 +104,10 @@ export const accountSlice = createSlice({
     builder.addCase(fetchUserAsync.rejected, (state, action) => {
       state.user = null
       state.fetchUserStatus = 'failed'
+    })
+
+    builder.addCase(getUserAddressAsync.fulfilled, (state, action) => {
+      state.userAddress = action.payload
     })
 
     // Login & Register
