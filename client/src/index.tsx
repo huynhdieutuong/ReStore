@@ -15,8 +15,8 @@ import Logout from './features/account/Logout'
 import Register from './features/account/Register'
 import BasketPage from './features/basket/BasketPage'
 import Catalog from './features/catalog/Catalog'
+import CheckoutWrapper from './features/checkout/CheckoutWrapper'
 import ProductDetails from './features/catalog/ProductDetails'
-import CheckoutPage from './features/checkout/CheckoutPage'
 import ContactPage from './features/contact/ContactPage'
 import HomePage from './features/home/HomePage'
 import OrderDetails from './features/order/OrderDetails'
@@ -45,7 +45,7 @@ root.render(
             <Route path='register' element={<Register />} />
             <Route path='logout' element={<Logout />} />
             <Route element={<PrivateRoute />}>
-              <Route path='checkout' element={<CheckoutPage />} />
+              <Route path='checkout' element={<CheckoutWrapper />} />
               <Route path='my-orders'>
                 <Route index element={<OrdersPage />} />
                 <Route path=':orderId' element={<OrderDetails />} />

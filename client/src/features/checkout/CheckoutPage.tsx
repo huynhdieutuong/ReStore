@@ -7,6 +7,7 @@ import Step from '@mui/material/Step'
 import StepLabel from '@mui/material/StepLabel'
 import Stepper from '@mui/material/Stepper'
 import Typography from '@mui/material/Typography'
+import {StripeElementType} from '@stripe/stripe-js'
 import {useEffect, useState} from 'react'
 import {FieldValues, FormProvider, useForm} from 'react-hook-form'
 import {Link, Navigate} from 'react-router-dom'
@@ -20,6 +21,9 @@ import validationSchema from './checkoutValidation'
 import PaymentForm from './PaymentForm'
 
 const steps = ['Shipping address', 'Review your order', 'Payment details']
+export interface CardState {
+  elementError: {[key in StripeElementType]?: string}
+}
 
 const CheckoutPage = () => {
   const {basket} = useAppSelector((state) => state.basket)
@@ -28,6 +32,34 @@ const CheckoutPage = () => {
   const dispatch = useAppDispatch()
   const [activeStep, setActiveStep] = useState(0)
   const currentValidationSchema = validationSchema[activeStep]
+  const [cardState, setCardState] = useState<CardState>({elementError: {}})
+  const [cardComplete, setCardComplete] = useState<any>({
+    cardNumber: false,
+    cardExpiry: false,
+    cardCvc: false,
+  })
+
+  const onCardInputChange = (e: any) => {
+    setCardState({
+      elementError: {
+        ...cardState.elementError,
+        [e.elementType]: e.error?.message,
+      },
+    })
+    setCardComplete({
+      ...cardComplete,
+      [e.elementType]: e.complete,
+    })
+  }
+
+  const submitDisabled = () => {
+    if (activeStep === steps.length - 1) {
+      const {cardNumber, cardExpiry, cardCvc} = cardComplete
+      return !methods.formState.isValid || !cardNumber || !cardExpiry || !cardCvc
+    }
+
+    return !methods.formState.isValid
+  }
 
   const methods = useForm({
     mode: 'all',
@@ -83,7 +115,7 @@ const CheckoutPage = () => {
       case 1:
         return <BasketPage isBasket={false} />
       case 2:
-        return <PaymentForm />
+        return <PaymentForm cardState={cardState} onCardInputChange={onCardInputChange} />
       default:
         throw new Error('Unknown step')
     }
@@ -129,7 +161,7 @@ const CheckoutPage = () => {
               </Button>
               <LoadingButton
                 loading={status === 'pending'}
-                disabled={!methods.formState.isValid}
+                disabled={submitDisabled()}
                 type='submit'
               >
                 {activeStep === steps.length - 1 ? 'Finish' : 'Next'}
