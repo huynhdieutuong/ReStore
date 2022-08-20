@@ -55,3 +55,18 @@ dotnet add package Microsoft.AspNetCore.Identity.EntityFrameworkCore
 dotnet ef migrations add IdentityAdded
 dotnet watch run
 ```
+
+## Integrate Stripe & payment flow
+1. When user click Checkout => call API to create or update Payment Intent
+- BE save payment intent id & client secret
+- Check https://dashboard.stripe.com/ => created a payment (incomplete status)
+2. When user input card info & click pay => call stripe.confirmCardPayment(clientSecret)
+=> return resultPayment => if succeeded, call API to create Order
+
+* Although created Order, but it's status is still Pending. For secure, we shouldn't trust user. We need a confirmation from Stripe to BE, then BE will update the order's status to ReceivedPayment.
+* How to implement this process? => using webhook
+3. Implement Webhook
+- Install Stripe CLI for server
+- Run `stripe listen` to get `WhSecret` from Stripe
+- Create webhook API to receive event from Stripe by `WhSecret`
+- Run cmd: `stripe listen -f http://localhost:5000/api/payments/webhook -e payment_intent.succeeded`
