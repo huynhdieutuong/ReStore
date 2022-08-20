@@ -1,7 +1,7 @@
 import {createTheme, CssBaseline, ThemeProvider} from '@mui/material'
 import {Container} from '@mui/system'
 import {useEffect, useState} from 'react'
-import {Outlet} from 'react-router-dom'
+import {Outlet, useLocation} from 'react-router-dom'
 import {ToastContainer} from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 import {fetchUserAsync} from '../../features/account/accountSlice'
@@ -16,6 +16,7 @@ function App() {
   const dispatch = useAppDispatch()
   const {loading} = useAppSelector((state) => state.basket)
   const {fetchUserStatus} = useAppSelector((state) => state.account)
+  const location = useLocation()
 
   const theme = createTheme({
     palette: {
@@ -39,9 +40,13 @@ function App() {
       <CssBaseline />
       <ToastContainer position='bottom-right' hideProgressBar theme='colored' />
       <Header darkMode={darkMode} handleThemeChange={handleThemeChange} />
-      <Container>
+      {location.pathname === '/' ? (
         <Outlet />
-      </Container>
+      ) : (
+        <Container sx={{mt: 4}}>
+          <Outlet />
+        </Container>
+      )}
     </ThemeProvider>
   )
 }
