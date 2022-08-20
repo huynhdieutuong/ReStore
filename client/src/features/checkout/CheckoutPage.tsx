@@ -7,6 +7,7 @@ import Step from '@mui/material/Step'
 import StepLabel from '@mui/material/StepLabel'
 import Stepper from '@mui/material/Stepper'
 import Typography from '@mui/material/Typography'
+import {CardNumberElement, useElements, useStripe} from '@stripe/react-stripe-js'
 import {StripeElementType} from '@stripe/stripe-js'
 import {useEffect, useState} from 'react'
 import {FieldValues, FormProvider, useForm} from 'react-hook-form'
@@ -27,7 +28,7 @@ export interface CardState {
 
 const CheckoutPage = () => {
   const {basket} = useAppSelector((state) => state.basket)
-  const {createdOrderId, status} = useAppSelector((state) => state.checkout)
+  const {createdOrderId} = useAppSelector((state) => state.checkout)
   const {userAddress} = useAppSelector((state) => state.account)
   const dispatch = useAppDispatch()
   const [activeStep, setActiveStep] = useState(0)
@@ -38,6 +39,11 @@ const CheckoutPage = () => {
     cardExpiry: false,
     cardCvc: false,
   })
+  const stripe = useStripe()
+  const elements = useElements()
+  const [loading, setLoading] = useState(false)
+  const [paymentSucceeded, setPaymentSucceeded] = useState(false)
+  const [paymentMessage, setPaymentMessage] = useState('')
 
   const onCardInputChange = (e: any) => {
     setCardState({
@@ -89,16 +95,48 @@ const CheckoutPage = () => {
     }
   }, [dispatch, methods, userAddress])
 
-  const handleNext = async (data: FieldValues) => {
-    if (activeStep === steps.length - 1) {
-      const {saveAddress, cardName, ...shippingAddress} = data
-      const values: CreateOrder = {
-        isSaveAddress: saveAddress,
-        shippingAddress: shippingAddress as ShippingAddress,
+  const submitOrder = async (data: FieldValues) => {
+    if (!stripe || !elements) return
+
+    setLoading(true)
+    const {saveAddress, cardName, ...shippingAddress} = data
+    const values: CreateOrder = {
+      isSaveAddress: saveAddress,
+      shippingAddress: shippingAddress as ShippingAddress,
+    }
+
+    try {
+      const cardElement = elements.getElement(CardNumberElement)
+      const paymentResult = await stripe.confirmCardPayment(basket?.clientSecret!, {
+        payment_method: {
+          card: cardElement!,
+          billing_details: {
+            name: cardName,
+          },
+        },
+      })
+      console.log(paymentResult)
+
+      if (paymentResult.paymentIntent?.status === 'succeeded') {
+        await dispatch(createOrderAsync(values))
+        setPaymentSucceeded(true)
+        setPaymentMessage('Thank you - we have received your payment')
+      } else {
+        setPaymentSucceeded(false)
+        setPaymentMessage(paymentResult.error?.message!)
       }
 
-      await dispatch(createOrderAsync(values))
       setActiveStep((prevActiveStep) => prevActiveStep + 1)
+      setLoading(false)
+    } catch (error) {
+      console.log(error)
+      setLoading(false)
+    }
+  }
+
+  const handleNext = async (data: FieldValues) => {
+    if (activeStep === steps.length - 1) {
+      await submitOrder(data)
     } else {
       setActiveStep((prevActiveStep) => prevActiveStep + 1)
     }
@@ -139,14 +177,20 @@ const CheckoutPage = () => {
       </Stepper>
       {activeStep === steps.length ? (
         <Box>
-          <Typography component='span' variant='h5'>
-            Thank you for your order.
+          <Typography variant='h5' gutterBottom>
+            {paymentMessage}
           </Typography>
-          <Typography sx={{mt: 2, mb: 1}}>
-            Your order number is <Link to={`/my-orders/${createdOrderId}`}>#{createdOrderId}</Link>.
-            We have emailed your order confirmation, and will send you an update when your order has
-            shipped.
-          </Typography>
+          {paymentSucceeded ? (
+            <Typography sx={{mt: 2, mb: 1}}>
+              Your order number is{' '}
+              <Link to={`/my-orders/${createdOrderId}`}>#{createdOrderId}</Link>. We have emailed
+              your order confirmation, and will send you an update when your order has shipped.
+            </Typography>
+          ) : (
+            <Button variant='contained' onClick={handleBack}>
+              Go back and try again
+            </Button>
+          )}
         </Box>
       ) : (
         <FormProvider {...methods}>
@@ -159,11 +203,7 @@ const CheckoutPage = () => {
               <Button color='inherit' disabled={activeStep === 0} onClick={handleBack} sx={{mr: 1}}>
                 Back
               </Button>
-              <LoadingButton
-                loading={status === 'pending'}
-                disabled={submitDisabled()}
-                type='submit'
-              >
+              <LoadingButton loading={loading} disabled={submitDisabled()} type='submit'>
                 {activeStep === steps.length - 1 ? 'Finish' : 'Next'}
               </LoadingButton>
             </Box>

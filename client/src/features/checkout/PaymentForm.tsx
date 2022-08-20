@@ -1,6 +1,5 @@
-import {Checkbox, FormControlLabel, Grid, TextField, Typography} from '@mui/material'
+import {Grid, TextField, Typography} from '@mui/material'
 import {CardCvcElement, CardExpiryElement, CardNumberElement} from '@stripe/react-stripe-js'
-import {StripeElementType} from '@stripe/stripe-js'
 import {useFormContext} from 'react-hook-form'
 import RhfTextField from '../../app/components/RhfTextField'
 import StripeInput from '../../app/components/StripeInput'
@@ -74,12 +73,6 @@ const PaymentForm = ({cardState, onCardInputChange}: Props) => {
                 component: CardCvcElement,
               },
             }}
-          />
-        </Grid>
-        <Grid item xs={12}>
-          <FormControlLabel
-            control={<Checkbox defaultChecked />}
-            label='Remember credit card details for next time'
           />
         </Grid>
       </Grid>
