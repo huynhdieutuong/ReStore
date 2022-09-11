@@ -1,4 +1,4 @@
-import {ProductParams} from '../models/product'
+import {CreateProduct, ProductParams, UpdateProduct} from '../models/product'
 import axiosClient from './axiosClient'
 
 const url = 'products'
@@ -7,6 +7,23 @@ const catalogApi = {
   getProducts: (params: URLSearchParams) => axiosClient.get(url, {params}),
   getProductById: (id: string) => axiosClient.get(`${url}/${id}`),
   getFilters: () => axiosClient.get(`${url}/filters`),
+  createProduct: (product: CreateProduct) =>
+    axiosClient.post(url, createFormData(product), {
+      headers: {'Content-type': 'multipart/form-data'},
+    }),
+  updateProduct: (product: UpdateProduct) =>
+    axiosClient.put(url, createFormData(product), {
+      headers: {'Content-type': 'multipart/form-data'},
+    }),
+  deleteProduct: (id: string) => axiosClient.delete(`${url}/${id}`),
+}
+
+const createFormData = (item: any) => {
+  let formData = new FormData()
+  for (const key in item) {
+    formData.append(key, item[key])
+  }
+  return formData
 }
 
 export const getAxiosParams = (productParams: ProductParams) => {

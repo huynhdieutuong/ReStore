@@ -1,18 +1,13 @@
 import {Grid, Paper} from '@mui/material'
-import {ChangeEvent, useEffect} from 'react'
+import {ChangeEvent} from 'react'
 import CheckboxButtons from '../../app/components/CheckboxButtons'
 import DebounceTextField from '../../app/components/DebounceTextField'
 import PaginationGroup from '../../app/components/PaginationGroup'
 import RadioButtonGroup from '../../app/components/RadioButtonGroup'
+import useProducts from '../../app/hooks/useProducts'
 import LoadingComponent from '../../app/layout/LoadingComponent'
-import {useAppDispatch, useAppSelector} from '../../app/store/hooks'
-import {
-  fetchFiltersAsync,
-  fetchProductsAsync,
-  productSelectors,
-  setPageNumber,
-  setProductParams,
-} from './catalogSlice'
+import {useAppDispatch} from '../../app/store/hooks'
+import {setPageNumber, setProductParams} from './catalogSlice'
 import ProductList from './ProductList'
 
 const sortOptions = [
@@ -23,15 +18,7 @@ const sortOptions = [
 
 const Catalog = () => {
   const dispatch = useAppDispatch()
-  const {status, productParams, filterStatus, filters, metaData} = useAppSelector(
-    (state) => state.catalog
-  )
-  const products = useAppSelector(productSelectors.selectAll)
-
-  useEffect(() => {
-    if (status === 'idle') dispatch(fetchProductsAsync())
-    if (filterStatus === 'idle') dispatch(fetchFiltersAsync())
-  }, [filterStatus, status, dispatch])
+  const {products, status, productParams, filterStatus, filters, metaData} = useProducts()
 
   if (filterStatus === 'pending') return <LoadingComponent message='Loading products...' />
 

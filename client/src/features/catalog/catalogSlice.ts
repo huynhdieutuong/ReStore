@@ -1,8 +1,8 @@
-import {createAsyncThunk, createEntityAdapter, createSlice} from '@reduxjs/toolkit'
+import {createAsyncThunk, createEntityAdapter, createSlice, isAnyOf} from '@reduxjs/toolkit'
 import {history} from '../..'
 import catalogApi, {getAxiosParams, initParams} from '../../app/api/catalog'
 import {MetaData} from '../../app/models/pagination'
-import {Product, ProductParams} from '../../app/models/product'
+import {CreateProduct, Product, ProductParams, UpdateProduct} from '../../app/models/product'
 import {RootState} from '../../app/store/configureStore'
 import {Status} from '../../app/store/types'
 
@@ -41,6 +41,42 @@ export const fetchProductsAsync = createAsyncThunk<Product[], void, {state: Root
       const res = await catalogApi.getProducts(params)
       thunkAPI.dispatch(setMetaData(res.data.metaData))
       return res.data.items
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error)
+    }
+  }
+)
+
+export const createProductAsync = createAsyncThunk<Product, CreateProduct>(
+  'catalog/createProductAsync',
+  async (product, thunkAPI) => {
+    try {
+      const res = await catalogApi.createProduct(product)
+      return res.data
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error)
+    }
+  }
+)
+
+export const updateProductAsync = createAsyncThunk<Product, UpdateProduct>(
+  'catalog/updateProductAsync',
+  async (product, thunkAPI) => {
+    try {
+      const res = await catalogApi.updateProduct(product)
+      return res.data
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error)
+    }
+  }
+)
+
+export const deleteProductAsync = createAsyncThunk<string, string>(
+  'catalog/deleteProductAsync',
+  async (productId, thunkAPI) => {
+    try {
+      await catalogApi.deleteProduct(productId)
+      return productId
     } catch (error) {
       return thunkAPI.rejectWithValue(error)
     }
@@ -131,6 +167,29 @@ export const catalogSlice = createSlice({
       console.log(action)
       state.filterStatus = 'failed'
     })
+
+    // Delete Product by Id
+    builder.addCase(deleteProductAsync.pending, (state) => {
+      state.productStatus = 'pending'
+    })
+    builder.addCase(deleteProductAsync.fulfilled, (state, action) => {
+      productsAdapter.removeOne(state, action.payload)
+      state.productStatus = 'succeeded'
+      state.status = 'idle'
+    })
+    builder.addCase(deleteProductAsync.rejected, (state, action) => {
+      console.log(action)
+      state.productStatus = 'failed'
+    })
+
+    // Create or Update Product
+    builder.addMatcher(
+      isAnyOf(createProductAsync.fulfilled, updateProductAsync.fulfilled),
+      (state, action) => {
+        productsAdapter.upsertOne(state, action.payload)
+        state.status = 'idle'
+      }
+    )
   },
 })
 

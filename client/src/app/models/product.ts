@@ -9,6 +9,27 @@ export interface Product {
   quantityInStock: number
 }
 
+export interface CreateProduct {
+  name: string
+  description: string
+  price: number
+  file: File
+  type: string
+  brand: string
+  quantityInStock: number
+}
+
+export interface UpdateProduct {
+  id: number
+  name: string
+  description: string
+  price: number
+  file?: File
+  type: string
+  brand: string
+  quantityInStock: number
+}
+
 export interface ProductParams {
   orderBy: string
   searchTerm: string

@@ -98,7 +98,9 @@ export const accountSlice = createSlice({
       state.fetchUserStatus = 'pending'
     })
     builder.addCase(fetchUserAsync.fulfilled, (state, action) => {
-      state.user = action.payload
+      let claims = JSON.parse(atob(action.payload.token.split('.')[1]))
+      let roles = claims['http://schemas.microsoft.com/ws/2008/06/identity/claims/role']
+      state.user = {...action.payload, roles: typeof roles === 'string' ? [roles] : roles}
       state.fetchUserStatus = 'succeeded'
     })
     builder.addCase(fetchUserAsync.rejected, (state, action) => {
@@ -112,7 +114,9 @@ export const accountSlice = createSlice({
 
     // Login & Register
     builder.addCase(loginAsync.fulfilled, (state, action) => {
-      state.user = action.payload
+      let claims = JSON.parse(atob(action.payload.token.split('.')[1]))
+      let roles = claims['http://schemas.microsoft.com/ws/2008/06/identity/claims/role']
+      state.user = {...action.payload, roles: typeof roles === 'string' ? [roles] : roles}
       state.status = 'succeeded'
     })
     builder.addCase(loginAsync.rejected, (state, action) => {

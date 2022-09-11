@@ -27,12 +27,14 @@ interface Props {
 interface Link {
   title: string
   path: string
+  roles?: string[]
 }
 
 const midLinks: Link[] = [
   {title: 'catalog', path: 'catalog'},
   {title: 'about', path: 'about'},
   {title: 'contact', path: 'contact'},
+  {title: 'inventory', path: 'inventory', roles: ['Admin']},
 ]
 
 const rightLinks: Link[] = [
@@ -81,24 +83,39 @@ const Header = ({darkMode, handleThemeChange}: Props) => {
     setAnchorElUser(null)
   }
 
-  const renderLinks = (links: Link[]) => (
-    <List sx={{display: 'flex'}}>
-      {links.map(({title, path}) => (
-        <ListItem component={NavLink} to={path} key={path} sx={navStyles}>
-          {title.toUpperCase()}
-        </ListItem>
-      ))}
-    </List>
-  )
+  const renderLinks = (links: Link[]) => {
+    const filterdLinks = links.filter((link) => {
+      if (!link.roles) return true
+      if (link.roles.some((r) => user?.roles?.includes(r))) return true
+      return false
+    })
 
-  const renderMenuItem = (links: Link[], closeMenu: () => void) =>
-    links.map(({title, path}) => (
+    return (
+      <List sx={{display: 'flex'}}>
+        {filterdLinks.map(({title, path}) => (
+          <ListItem component={NavLink} to={path} key={path} sx={navStyles}>
+            {title.toUpperCase()}
+          </ListItem>
+        ))}
+      </List>
+    )
+  }
+
+  const renderMenuItem = (links: Link[], closeMenu: () => void) => {
+    const filterdLinks = links.filter((link) => {
+      if (!link.roles) return true
+      if (link.roles.some((r) => user?.roles?.includes(r))) return true
+      return false
+    })
+
+    return filterdLinks.map(({title, path}) => (
       <MenuItem key={path} onClick={closeMenu} component={NavLink} to={path}>
         <Typography sx={{...navStyles, textAlign: 'center', fontSize: '1rem'}}>
           {title.toUpperCase()}
         </Typography>
       </MenuItem>
     ))
+  }
 
   const renderLogo = () => (
     <>

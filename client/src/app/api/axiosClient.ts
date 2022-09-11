@@ -56,6 +56,9 @@ axiosClient.interceptors.response.use(
       case 401:
         toast.error(dataError.title)
         break
+      case 403:
+        toast.error('You are not allowed to do that!')
+        break
       case 404:
         toast.error(data as string)
         break

@@ -24,6 +24,7 @@ import HomePage from './features/home/HomePage'
 import OrderDetails from './features/order/OrderDetails'
 import OrdersPage from './features/order/OrdersPage'
 import reportWebVitals from './reportWebVitals'
+import Inventory from './features/admin/Inventory'
 
 export const history = createBrowserHistory({window})
 
@@ -52,6 +53,9 @@ root.render(
                 <Route index element={<OrdersPage />} />
                 <Route path=':orderId' element={<OrderDetails />} />
               </Route>
+            </Route>
+            <Route element={<PrivateRoute roles={['Admin']} />}>
+              <Route path='inventory' element={<Inventory />} />
             </Route>
             <Route path='*' element={<NotFound />} />
           </Route>

@@ -3,6 +3,9 @@ import {FieldValues, useController, UseControllerProps} from 'react-hook-form'
 
 interface Props<T extends FieldValues> extends UseControllerProps<T> {
   label: string
+  type?: string
+  rows?: number
+  multiline?: boolean
 }
 
 const RhfTextField = <T extends FieldValues>(props: Props<T>) => {
